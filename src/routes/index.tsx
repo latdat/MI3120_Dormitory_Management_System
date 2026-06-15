@@ -48,7 +48,7 @@ function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validCredentials: Record<Role, string> = {
       admin: "admin",
       student: "sinhvien",
@@ -66,7 +66,7 @@ function LoginPage() {
       setFirstTime(true);
       return;
     }
-    
+
     login(role);
     toast.success("Đăng nhập thành công");
     nav({ to: "/dashboard" });
@@ -155,7 +155,8 @@ function LoginPage() {
                 Đăng nhập
               </Button>
               <div className="text-[13px] text-muted-foreground bg-muted/50 p-3 rounded-md mt-4 leading-relaxed">
-                💡 Gợi ý Demo: Tên đăng nhập là chữ trong ngoặc ở ô Vai trò. Ví dụ: Quản lý KTX -&gt; nhập 'admin', Sinh viên -&gt; nhập 'sinhvien', Kế toán -&gt; nhập 'ketoan', Kỹ thuật -&gt; nhập 'kythuat', Bảo vệ -&gt; nhập 'baove'. Mật khẩu mặc định cho tất cả là: 123456
+                💡Demo: Tên đăng nhập là chữ trong ngoặc ở ô Vai trò. Ví dụ: Quản lý KTX -&gt; nhập 'admin'<br />
+                Mật khẩu mặc định cho tất cả là: 123456
               </div>
             </form>
           </CardContent>
