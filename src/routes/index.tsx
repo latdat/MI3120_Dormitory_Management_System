@@ -48,10 +48,25 @@ function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "123456") {
+    
+    const validCredentials: Record<Role, string> = {
+      admin: "admin",
+      student: "sinhvien",
+      accountant: "ketoan",
+      technical: "kythuat",
+      security: "baove",
+    };
+
+    if (username !== validCredentials[role] || password !== "123456") {
+      toast.error("Tên đăng nhập hoặc mật khẩu không đúng!");
+      return;
+    }
+
+    if (password === "123456" && role !== "admin") {
       setFirstTime(true);
       return;
     }
+    
     login(role);
     toast.success("Đăng nhập thành công");
     nav({ to: "/dashboard" });
@@ -93,11 +108,20 @@ function LoginPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {(Object.keys(ROLE_LABELS) as Role[]).map((r) => (
-                      <SelectItem key={r} value={r}>
-                        {ROLE_LABELS[r]}
-                      </SelectItem>
-                    ))}
+                    {(Object.keys(ROLE_LABELS) as Role[]).map((r) => {
+                      const demoUsernames: Record<Role, string> = {
+                        admin: "admin",
+                        student: "sinhvien",
+                        accountant: "ketoan",
+                        technical: "kythuat",
+                        security: "baove",
+                      };
+                      return (
+                        <SelectItem key={r} value={r}>
+                          {ROLE_LABELS[r]} ({demoUsernames[r]})
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
@@ -130,6 +154,9 @@ function LoginPage() {
               <Button type="submit" className="w-full">
                 Đăng nhập
               </Button>
+              <div className="text-[13px] text-muted-foreground bg-muted/50 p-3 rounded-md mt-4 leading-relaxed">
+                💡 Gợi ý Demo: Tên đăng nhập là chữ trong ngoặc ở ô Vai trò. Ví dụ: Quản lý KTX -&gt; nhập 'admin', Sinh viên -&gt; nhập 'sinhvien', Kế toán -&gt; nhập 'ketoan', Kỹ thuật -&gt; nhập 'kythuat', Bảo vệ -&gt; nhập 'baove'. Mật khẩu mặc định cho tất cả là: 123456
+              </div>
             </form>
           </CardContent>
         </Card>
