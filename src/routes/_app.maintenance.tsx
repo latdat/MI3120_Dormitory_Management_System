@@ -203,12 +203,25 @@ function MaintenancePage() {
                   <p className="font-medium text-sm">{selStudent?.fullName ?? "—"}</p>
                 </div>
               </div>
-              <div
-                className="rounded-lg bg-[#f3f4f6] flex items-center justify-center text-sm text-gray-500"
-                style={{ height: 180 }}
-              >
-                📷 Ảnh sinh viên đính kèm
-              </div>
+              {sel.imageUrl ? (
+                <div
+                  className="rounded-lg overflow-hidden flex items-center justify-center bg-[#f3f4f6]"
+                  style={{ height: 180 }}
+                >
+                  <img
+                    src={sel.imageUrl}
+                    alt="Ảnh đính kèm"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div
+                  className="rounded-lg bg-[#f3f4f6] flex items-center justify-center text-sm text-gray-500"
+                  style={{ height: 180 }}
+                >
+                  📷 Ảnh sinh viên đính kèm
+                </div>
+              )}
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold">Cập nhật xử lý</h4>
                 <div className="grid gap-2">

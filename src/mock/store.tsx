@@ -64,6 +64,7 @@ export interface MaintenanceRequest {
   description: string;
   status: MaintStatus;
   createdAt: string;
+  imageUrl?: string;
 }
 
 export interface Violation {
@@ -713,6 +714,7 @@ const seedMaintenance: MaintenanceRequest[] = [
       "Quạt trần phòng A101 không quay, có mùi khét khi bật công tắc. Đề nghị kiểm tra và thay thế.",
     status: "Chờ tiếp nhận",
     createdAt: "2026-06-13",
+    imageUrl: "/Quat_tran_hong.jpg",
   },
   {
     id: "m2",
