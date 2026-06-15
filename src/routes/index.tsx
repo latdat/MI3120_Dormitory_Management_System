@@ -91,7 +91,7 @@ function LoginPage() {
     >
       <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.25)" }} />
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
-        <Card className="w-full max-w-md shadow-xl">
+        <Card className="w-full max-w-md shadow-xl mb-24">
           <CardHeader className="text-center">
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
               <Building2 className="h-7 w-7" />
