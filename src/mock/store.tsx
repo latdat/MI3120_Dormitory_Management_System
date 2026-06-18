@@ -11,6 +11,13 @@ export const ROLE_LABELS: Record<Role, string> = {
 };
 
 export type RoomStatus = "available" | "occupied" | "maintenance";
+export type EquipmentStatus = "Tốt" | "Hỏng" | "Mất";
+export interface EquipmentItem {
+  name: string;
+  quantity: number;
+  status: EquipmentStatus;
+  note: string;
+}
 export interface Room {
   id: string;
   building: "A" | "B" | "C";
@@ -19,6 +26,7 @@ export interface Room {
   occupied: number;
   status: RoomStatus;
   monthlyFee: number;
+  equipment: EquipmentItem[];
 }
 
 export interface Student {
@@ -98,7 +106,7 @@ export interface Deposit {
   id: string;
   studentId: string;
   amount: number;
-  status: "Đã thu" | "Đã hoàn";
+  status: "Đã thu" | "Đã hoàn" | "Chưa đóng";
   date: string;
 }
 
@@ -143,14 +151,46 @@ const seedRooms = (): Room[] => {
   (["A", "B", "C"] as const).forEach((b) => {
     config[b].forEach((cfg, i) => {
       const idx = i + 1;
+      const roomId = `room-${b}-${idx}`;
+
+      let h = 0;
+      for (let c = 0; c < roomId.length; c++) h = (h * 31 + roomId.charCodeAt(c)) | 0;
+      const base = Math.abs(h);
+      const statuses: EquipmentStatus[] = ["Tốt", "Tốt", "Tốt", "Tốt", "Tốt", "Hỏng", "Tốt", "Mất"];
+      const getStatus = (offset: number) => statuses[(base + offset) % statuses.length];
+      
+      const equipment: EquipmentItem[] = [
+        { name: "Giường tầng", quantity: base % 2 === 0 ? 3 : 2, status: getStatus(1), note: getStatus(1) === "Hỏng" ? "Bị gãy nan" : "" },
+        { name: "Tủ cá nhân", quantity: 6, status: getStatus(2), note: getStatus(2) === "Hỏng" ? "Kẹt bản lề" : "" },
+        { name: "Bàn học", quantity: base % 3 === 0 ? 4 : 6, status: getStatus(3), note: getStatus(3) === "Mất" ? "Thiếu 1 ghế" : "" },
+        { name: "Quạt trần", quantity: 2, status: getStatus(4), note: getStatus(4) === "Hỏng" ? "Quay chậm kêu to" : "" },
+        { name: "Đèn chiếu sáng", quantity: base % 2 === 0 ? 4 : 6, status: getStatus(5), note: getStatus(5) === "Hỏng" ? "Cháy 1 bóng" : "" },
+        { name: "Ổ cắm điện", quantity: 6, status: getStatus(6), note: getStatus(6) === "Hỏng" ? "Lỏng chốt" : "" },
+      ];
+
+      // Add extra items to make rooms look distinctly different
+      if (base % 3 === 0) {
+        equipment.push({ name: "Điều hòa 9000BTU", quantity: 1, status: getStatus(7), note: "" });
+      }
+      if (base % 2 === 0) {
+        equipment.push({ name: "Bình nóng lạnh", quantity: 1, status: getStatus(8), note: "" });
+      }
+      if (base % 4 === 1) {
+        equipment.push({ name: "Bộ phát Wi-Fi", quantity: 1, status: "Tốt", note: "" });
+      }
+      if (base % 5 === 2) {
+        equipment.push({ name: "Tủ lạnh mini", quantity: 1, status: getStatus(9), note: "" });
+      }
+
       out.push({
-        id: `room-${b}-${idx}`,
+        id: roomId,
         building: b,
         number: `${b}10${idx}`,
         capacity: 6,
         occupied: cfg.occupied,
         status: cfg.status,
         monthlyFee: fees[b],
+        equipment,
       });
     });
   });
@@ -929,12 +969,11 @@ const seedMeters: MeterReading[] = seedRooms()
   }));
 
 const seedDeposits: Deposit[] = seedStudents
-  .filter((s) => s.roomId)
-  .map((s) => ({
+  .map((s, i) => ({
     id: `dp-${s.id}`,
     studentId: s.id,
     amount: 1000000,
-    status: "Đã thu" as const,
+    status: (s.roomId ? "Đã thu" : "Chưa đóng") as Deposit["status"],
     date: "2026-01-15",
   }));
 
@@ -957,8 +996,12 @@ interface StoreContextValue extends Store {
   setRole: (role: Role) => void;
   login: (role: Role) => void;
   logout: () => void;
+  addApplication: (req: Omit<Application, "id" | "status" | "date">) => void;
   approveApplication: (id: string) => void;
   rejectApplication: (id: string) => void;
+  addRoom: (r: Omit<Room, "id" | "occupied" | "status" | "equipment">) => void;
+  updateRoom: (id: string, r: Partial<Room>) => void;
+  deleteRoom: (id: string) => void;
   payInvoice: (id: string) => void;
   setMaintStatus: (id: string, status: MaintStatus) => void;
   addMaintenance: (req: Omit<MaintenanceRequest, "id" | "createdAt" | "status">) => void;
@@ -967,6 +1010,8 @@ interface StoreContextValue extends Store {
   updateMeter: (id: string, patch: Partial<MeterReading>) => void;
   generateInvoicesFromMeters: () => void;
   refundDeposit: (id: string) => void;
+  payDeposit: (id: string) => void;
+  updateRoomEquipment: (roomId: string, equipment: EquipmentItem[]) => void;
 }
 
 const Ctx = createContext<StoreContextValue | null>(null);
@@ -1026,6 +1071,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         persist(null);
         return { ...s, user: null };
       }),
+    addApplication: (req) =>
+      setState((s) => ({
+        ...s,
+        applications: [
+          {
+            ...req,
+            id: `ap${Date.now()}`,
+            status: "Chờ duyệt",
+            date: new Date().toISOString().slice(0, 10),
+          },
+          ...s.applications,
+        ],
+      })),
     approveApplication: (id) =>
       setState((s) => ({
         ...s,
@@ -1118,6 +1176,43 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setState((s) => ({
         ...s,
         deposits: s.deposits.map((d) => (d.id === id ? { ...d, status: "Đã hoàn" } : d)),
+      })),
+    payDeposit: (id) =>
+      setState((s) => ({
+        ...s,
+        deposits: s.deposits.map((d) => (d.id === id ? { ...d, status: "Đã thu" } : d)),
+      })),
+    updateRoomEquipment: (roomId, equipment) =>
+      setState((s) => ({
+        ...s,
+        rooms: s.rooms.map((r) => (r.id === roomId ? { ...r, equipment } : r)),
+      })),
+    addRoom: (r) =>
+      setState((s) => {
+        const id = `room-${r.building}-${Date.now().toString().slice(-4)}`;
+        const newRoom: Room = {
+          ...r,
+          id,
+          occupied: 0,
+          status: "available",
+          equipment: [
+            { name: "Giường tầng", quantity: r.capacity > 4 ? 3 : 2, status: "Tốt", note: "" },
+            { name: "Tủ cá nhân", quantity: r.capacity, status: "Tốt", note: "" },
+            { name: "Bàn học", quantity: r.capacity, status: "Tốt", note: "" },
+            { name: "Đèn chiếu sáng", quantity: 4, status: "Tốt", note: "" },
+          ],
+        };
+        return { ...s, rooms: [...s.rooms, newRoom] };
+      }),
+    updateRoom: (id, patch) =>
+      setState((s) => ({
+        ...s,
+        rooms: s.rooms.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+      })),
+    deleteRoom: (id) =>
+      setState((s) => ({
+        ...s,
+        rooms: s.rooms.filter((r) => r.id !== id),
       })),
   };
 

@@ -117,7 +117,14 @@ function MetersPage() {
                 <TableRow key={m.id}>
                   <TableCell className="font-medium">{room?.number}</TableCell>
                   <TableCell>{m.month}</TableCell>
-                  <TableCell className="text-right">{m.prevElec}</TableCell>
+                  <TableCell className="text-right w-28">
+                    <Input
+                      type="number"
+                      value={m.prevElec}
+                      onChange={(e) => updateMeter(m.id, { prevElec: Number(e.target.value) })}
+                      className="h-8 text-right bg-transparent border-gray-200 focus-visible:border-gray-400 focus-visible:ring-gray-400 rounded-md"
+                    />
+                  </TableCell>
                   <TableCell className="text-right w-28">
                     <Input
                       type="number"
@@ -127,7 +134,14 @@ function MetersPage() {
                     />
                   </TableCell>
                   <TableCell className="text-right">{eUse} kWh</TableCell>
-                  <TableCell className="text-right">{m.prevWater}</TableCell>
+                  <TableCell className="text-right w-28">
+                    <Input
+                      type="number"
+                      value={m.prevWater}
+                      onChange={(e) => updateMeter(m.id, { prevWater: Number(e.target.value) })}
+                      className="h-8 text-right bg-transparent border-gray-200 focus-visible:border-gray-400 focus-visible:ring-gray-400 rounded-md"
+                    />
+                  </TableCell>
                   <TableCell className="text-right w-28">
                     <Input
                       type="number"

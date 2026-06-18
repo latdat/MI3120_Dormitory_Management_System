@@ -63,15 +63,22 @@ function InvoicesPage() {
 
   const filtered = useMemo(
     () =>
-      baseList.filter((i) => {
-        if (status !== "all" && i.status !== status) return false;
-        if (q) {
-          const s = students.find((x) => x.id === i.studentId);
-          const hay = `${s?.fullName ?? ""} ${s?.mssv ?? ""} ${i.id}`.toLowerCase();
-          if (!hay.includes(q.toLowerCase())) return false;
-        }
-        return true;
-      }),
+      baseList
+        .filter((i) => {
+          if (status !== "all" && i.status !== status) return false;
+          if (q) {
+            const s = students.find((x) => x.id === i.studentId);
+            const hay = `${s?.fullName ?? ""} ${s?.mssv ?? ""} ${i.id}`.toLowerCase();
+            if (!hay.includes(q.toLowerCase())) return false;
+          }
+          return true;
+        })
+        .sort((a, b) => {
+          const unpaidA = a.status !== "Đã thanh toán" ? 0 : 1;
+          const unpaidB = b.status !== "Đã thanh toán" ? 0 : 1;
+          if (unpaidA !== unpaidB) return unpaidA - unpaidB;
+          return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
+        }),
     [baseList, students, q, status],
   );
 
@@ -125,25 +132,27 @@ function InvoicesPage() {
           ) : undefined
         }
       />
-      <TableToolbar
-        search={q}
-        onSearch={(v) => {
-          setQ(v);
-          setPage(1);
-        }}
-        searchPlaceholder="Tìm theo tên, MSSV hoặc mã HĐ..."
-        status={status}
-        onStatus={(v) => {
-          setStatus(v);
-          setPage(1);
-        }}
-        statusOptions={[
-          { value: "all", label: "Tất cả" },
-          { value: "Đã thanh toán", label: "Đã thanh toán" },
-          { value: "Chưa thanh toán", label: "Chưa thanh toán" },
-          { value: "Quá hạn", label: "Quá hạn" },
-        ]}
-      />
+      {role !== "student" && (
+        <TableToolbar
+          search={q}
+          onSearch={(v) => {
+            setQ(v);
+            setPage(1);
+          }}
+          searchPlaceholder="Tìm theo tên, MSSV hoặc mã HĐ..."
+          status={status}
+          onStatus={(v) => {
+            setStatus(v);
+            setPage(1);
+          }}
+          statusOptions={[
+            { value: "all", label: "Tất cả" },
+            { value: "Đã thanh toán", label: "Đã thanh toán" },
+            { value: "Chưa thanh toán", label: "Chưa thanh toán" },
+            { value: "Quá hạn", label: "Quá hạn" },
+          ]}
+        />
+      )}
       <div className="rounded-lg border bg-card">
         <Table>
           <TableHeader>

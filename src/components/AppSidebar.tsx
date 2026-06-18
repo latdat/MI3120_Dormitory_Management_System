@@ -13,6 +13,8 @@ import {
   BedDouble,
   PlusCircle,
   LogOut,
+  UserX,
+  Users,
 } from "lucide-react";
 import {
   Sidebar,
@@ -44,13 +46,17 @@ const MENUS: Record<Role, Item[]> = {
     { title: "Hóa đơn", url: "/invoices", icon: Receipt },
     { title: "Bảo trì", url: "/maintenance", icon: Wrench },
     { title: "Vi phạm", url: "/violations", icon: ShieldAlert },
+    { title: "Quản lý kỷ luật & Chế tài", url: "/discipline", icon: ShieldAlert },
     { title: "Thông báo", url: "/notifications", icon: Bell },
     { title: "Báo cáo", url: "/reports", icon: BarChart3 },
+    { title: "Quản lý tài khoản", url: "/accounts", icon: Users },
   ],
   student: [
     { title: "Tổng quan", url: "/dashboard", icon: LayoutDashboard },
+    { title: "Đăng ký nội trú", url: "/registration", icon: FileText },
     { title: "Phòng của tôi", url: "/my-room", icon: BedDouble },
     { title: "Hóa đơn", url: "/invoices", icon: Receipt },
+    { title: "Tiền cọc", url: "/deposits", icon: Wallet },
     { title: "Gửi yêu cầu bảo trì", url: "/maintenance-new", icon: PlusCircle },
     { title: "Thông báo", url: "/notifications", icon: Bell },
   ],
@@ -67,6 +73,7 @@ const MENUS: Record<Role, Item[]> = {
   security: [
     { title: "Tổng quan", url: "/dashboard", icon: LayoutDashboard },
     { title: "Ghi vi phạm", url: "/violations", icon: ShieldAlert },
+    { title: "Danh sách đen", url: "/blacklist", icon: UserX },
   ],
 };
 

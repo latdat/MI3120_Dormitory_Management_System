@@ -383,23 +383,121 @@ function StudentDashboard() {
 }
 
 function AccountantDashboard() {
-  const { invoices, deposits } = useStore();
+  const { invoices, deposits, rooms, students } = useStore();
   const unpaid = invoices.filter((i) => i.status !== "Đã thanh toán");
+  const overdue = invoices.filter((i) => i.status === "Quá hạn");
   const collected = invoices
     .filter((i) => i.status === "Đã thanh toán")
     .reduce((s, i) => s + i.total, 0);
+  const totalAmount = invoices.reduce((s, i) => s + i.total, 0);
+  const collectionRate = totalAmount === 0 ? 0 : Math.round((collected / totalAmount) * 100);
+
+  const depositHeld = deposits.filter((d) => d.status === "Đã thu").reduce((s, d) => s + d.amount, 0);
+
+  // Chart data: Revenue by building
+  const chartData = (["A", "B", "C"] as const).map((b) => {
+    const buildingRooms = rooms.filter((r) => r.building === b).map((r) => r.id);
+    const bInvoices = invoices.filter((i) => buildingRooms.includes(i.roomId));
+    
+    const bCollected = bInvoices.filter((i) => i.status === "Đã thanh toán").reduce((s, i) => s + i.total, 0);
+    const bUnpaid = bInvoices.filter((i) => i.status !== "Đã thanh toán").reduce((s, i) => s + i.total, 0);
+    
+    return { name: `Tòa ${b}`, "Đã thu": bCollected, "Chưa thu": bUnpaid };
+  });
+
   return (
     <RoleGuard allow={["accountant"]}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <KpiCard icon={Receipt} label="Hóa đơn chưa thu" value={unpaid.length} tone="warning" />
-        <KpiCard icon={Wallet} label="Đã thu" value={formatVND(collected)} tone="success" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <KpiCard 
+          icon={Receipt} 
+          label="Hóa đơn chưa thu" 
+          value={unpaid.length} 
+          hint={`${overdue.length} quá hạn`} 
+          tone="warning" 
+        />
+        <KpiCard 
+          icon={Wallet} 
+          label="Doanh thu đã thu" 
+          value={formatVND(collected)} 
+          tone="success" 
+        />
         <KpiCard
           icon={Wallet}
           label="Tiền cọc đang giữ"
-          value={formatVND(
-            deposits.filter((d) => d.status === "Đã thu").reduce((s, d) => s + d.amount, 0),
-          )}
+          value={formatVND(depositHeld)}
+          tone="primary"
         />
+        <KpiCard 
+          icon={AlertTriangle} 
+          label="Tỷ lệ thu hồi" 
+          value={`${collectionRate}%`} 
+          tone={collectionRate >= 80 ? "success" : "danger"} 
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">Tình trạng thu tiền theo tòa</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 24, right: 12, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis dataKey="name" />
+                <YAxis tickFormatter={(v) => `${v / 1000000}tr`} />
+                <RTooltip formatter={(v: number) => formatVND(v)} />
+                <Bar dataKey="Đã thu" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Chưa thu" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-rose-600" /> Cần nhắc nợ (Quá hạn)
+            </CardTitle>
+            <CardDescription>Danh sách hóa đơn trễ hạn</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-muted-foreground">
+                <tr className="text-left">
+                  <th className="px-4 py-2 font-medium">Phòng</th>
+                  <th className="px-4 py-2 font-medium">Sinh viên</th>
+                  <th className="px-4 py-2 font-medium text-right">Số tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                {overdue.slice(0, 6).map((o, idx) => {
+                  const student = students.find((s) => s.id === o.studentId);
+                  const room = rooms.find((r) => r.id === o.roomId);
+                  return (
+                    <tr key={o.id} className={`border-t ${idx % 2 === 1 ? "bg-muted/20" : ""}`}>
+                      <td className="px-4 py-2 font-medium">{room?.number}</td>
+                      <td className="px-4 py-2 truncate max-w-[100px]">{student?.fullName}</td>
+                      <td className="px-4 py-2 text-right font-medium text-rose-600">{formatVND(o.total)}</td>
+                    </tr>
+                  );
+                })}
+                {overdue.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="text-center py-6 text-muted-foreground">Không có hóa đơn quá hạn</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            {overdue.length > 0 && (
+              <div className="p-3 border-t bg-muted/20 text-center">
+                <Link to="/invoices" className="text-sm font-medium text-[#C41230] hover:underline">
+                  Xem tất cả hóa đơn →
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </RoleGuard>
   );

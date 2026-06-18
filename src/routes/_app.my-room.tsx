@@ -60,9 +60,11 @@ function MyRoomPage() {
               />
               <Button
                 className="w-full mt-3"
-                onClick={() => toast.success("Đã gửi yêu cầu chuyển phòng. Vui lòng chờ duyệt.")}
+                asChild
               >
-                <ArrowRightLeft className="h-4 w-4" /> Đăng ký chuyển phòng
+                <Link to="/registration">
+                  <ArrowRightLeft className="h-4 w-4 mr-2" /> Đăng ký chuyển phòng
+                </Link>
               </Button>
             </CardContent>
           </Card>

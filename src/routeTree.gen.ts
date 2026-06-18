@@ -14,15 +14,19 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppViolationsRouteImport } from './routes/_app.violations'
 import { Route as AppRoomsRouteImport } from './routes/_app.rooms'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
+import { Route as AppRegistrationRouteImport } from './routes/_app.registration'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
 import { Route as AppMyRoomRouteImport } from './routes/_app.my-room'
 import { Route as AppMetersRouteImport } from './routes/_app.meters'
 import { Route as AppMaintenanceNewRouteImport } from './routes/_app.maintenance-new'
 import { Route as AppMaintenanceRouteImport } from './routes/_app.maintenance'
 import { Route as AppInvoicesRouteImport } from './routes/_app.invoices'
+import { Route as AppDisciplineRouteImport } from './routes/_app.discipline'
 import { Route as AppDepositsRouteImport } from './routes/_app.deposits'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppBlacklistRouteImport } from './routes/_app.blacklist'
 import { Route as AppApplicationsRouteImport } from './routes/_app.applications'
+import { Route as AppAccountsRouteImport } from './routes/_app.accounts'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -46,6 +50,11 @@ const AppRoomsRoute = AppRoomsRouteImport.update({
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRegistrationRoute = AppRegistrationRouteImport.update({
+  id: '/registration',
+  path: '/registration',
   getParentRoute: () => AppRoute,
 } as any)
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
@@ -78,6 +87,11 @@ const AppInvoicesRoute = AppInvoicesRouteImport.update({
   path: '/invoices',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDisciplineRoute = AppDisciplineRouteImport.update({
+  id: '/discipline',
+  path: '/discipline',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDepositsRoute = AppDepositsRouteImport.update({
   id: '/deposits',
   path: '/deposits',
@@ -88,38 +102,56 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBlacklistRoute = AppBlacklistRouteImport.update({
+  id: '/blacklist',
+  path: '/blacklist',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppApplicationsRoute = AppApplicationsRouteImport.update({
   id: '/applications',
   path: '/applications',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAccountsRoute = AppAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accounts': typeof AppAccountsRoute
   '/applications': typeof AppApplicationsRoute
+  '/blacklist': typeof AppBlacklistRoute
   '/dashboard': typeof AppDashboardRoute
   '/deposits': typeof AppDepositsRoute
+  '/discipline': typeof AppDisciplineRoute
   '/invoices': typeof AppInvoicesRoute
   '/maintenance': typeof AppMaintenanceRoute
   '/maintenance-new': typeof AppMaintenanceNewRoute
   '/meters': typeof AppMetersRoute
   '/my-room': typeof AppMyRoomRoute
   '/notifications': typeof AppNotificationsRoute
+  '/registration': typeof AppRegistrationRoute
   '/reports': typeof AppReportsRoute
   '/rooms': typeof AppRoomsRoute
   '/violations': typeof AppViolationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accounts': typeof AppAccountsRoute
   '/applications': typeof AppApplicationsRoute
+  '/blacklist': typeof AppBlacklistRoute
   '/dashboard': typeof AppDashboardRoute
   '/deposits': typeof AppDepositsRoute
+  '/discipline': typeof AppDisciplineRoute
   '/invoices': typeof AppInvoicesRoute
   '/maintenance': typeof AppMaintenanceRoute
   '/maintenance-new': typeof AppMaintenanceNewRoute
   '/meters': typeof AppMetersRoute
   '/my-room': typeof AppMyRoomRoute
   '/notifications': typeof AppNotificationsRoute
+  '/registration': typeof AppRegistrationRoute
   '/reports': typeof AppReportsRoute
   '/rooms': typeof AppRoomsRoute
   '/violations': typeof AppViolationsRoute
@@ -128,15 +160,19 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/_app/accounts': typeof AppAccountsRoute
   '/_app/applications': typeof AppApplicationsRoute
+  '/_app/blacklist': typeof AppBlacklistRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/deposits': typeof AppDepositsRoute
+  '/_app/discipline': typeof AppDisciplineRoute
   '/_app/invoices': typeof AppInvoicesRoute
   '/_app/maintenance': typeof AppMaintenanceRoute
   '/_app/maintenance-new': typeof AppMaintenanceNewRoute
   '/_app/meters': typeof AppMetersRoute
   '/_app/my-room': typeof AppMyRoomRoute
   '/_app/notifications': typeof AppNotificationsRoute
+  '/_app/registration': typeof AppRegistrationRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/rooms': typeof AppRoomsRoute
   '/_app/violations': typeof AppViolationsRoute
@@ -145,30 +181,38 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/accounts'
     | '/applications'
+    | '/blacklist'
     | '/dashboard'
     | '/deposits'
+    | '/discipline'
     | '/invoices'
     | '/maintenance'
     | '/maintenance-new'
     | '/meters'
     | '/my-room'
     | '/notifications'
+    | '/registration'
     | '/reports'
     | '/rooms'
     | '/violations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/accounts'
     | '/applications'
+    | '/blacklist'
     | '/dashboard'
     | '/deposits'
+    | '/discipline'
     | '/invoices'
     | '/maintenance'
     | '/maintenance-new'
     | '/meters'
     | '/my-room'
     | '/notifications'
+    | '/registration'
     | '/reports'
     | '/rooms'
     | '/violations'
@@ -176,15 +220,19 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/_app/accounts'
     | '/_app/applications'
+    | '/_app/blacklist'
     | '/_app/dashboard'
     | '/_app/deposits'
+    | '/_app/discipline'
     | '/_app/invoices'
     | '/_app/maintenance'
     | '/_app/maintenance-new'
     | '/_app/meters'
     | '/_app/my-room'
     | '/_app/notifications'
+    | '/_app/registration'
     | '/_app/reports'
     | '/_app/rooms'
     | '/_app/violations'
@@ -232,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReportsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/registration': {
+      id: '/_app/registration'
+      path: '/registration'
+      fullPath: '/registration'
+      preLoaderRoute: typeof AppRegistrationRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/notifications': {
       id: '/_app/notifications'
       path: '/notifications'
@@ -274,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInvoicesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/discipline': {
+      id: '/_app/discipline'
+      path: '/discipline'
+      fullPath: '/discipline'
+      preLoaderRoute: typeof AppDisciplineRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/deposits': {
       id: '/_app/deposits'
       path: '/deposits'
@@ -288,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/blacklist': {
+      id: '/_app/blacklist'
+      path: '/blacklist'
+      fullPath: '/blacklist'
+      preLoaderRoute: typeof AppBlacklistRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/applications': {
       id: '/_app/applications'
       path: '/applications'
@@ -295,34 +364,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppApplicationsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/accounts': {
+      id: '/_app/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AppAccountsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAccountsRoute: typeof AppAccountsRoute
   AppApplicationsRoute: typeof AppApplicationsRoute
+  AppBlacklistRoute: typeof AppBlacklistRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppDepositsRoute: typeof AppDepositsRoute
+  AppDisciplineRoute: typeof AppDisciplineRoute
   AppInvoicesRoute: typeof AppInvoicesRoute
   AppMaintenanceRoute: typeof AppMaintenanceRoute
   AppMaintenanceNewRoute: typeof AppMaintenanceNewRoute
   AppMetersRoute: typeof AppMetersRoute
   AppMyRoomRoute: typeof AppMyRoomRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
+  AppRegistrationRoute: typeof AppRegistrationRoute
   AppReportsRoute: typeof AppReportsRoute
   AppRoomsRoute: typeof AppRoomsRoute
   AppViolationsRoute: typeof AppViolationsRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountsRoute: AppAccountsRoute,
   AppApplicationsRoute: AppApplicationsRoute,
+  AppBlacklistRoute: AppBlacklistRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppDepositsRoute: AppDepositsRoute,
+  AppDisciplineRoute: AppDisciplineRoute,
   AppInvoicesRoute: AppInvoicesRoute,
   AppMaintenanceRoute: AppMaintenanceRoute,
   AppMaintenanceNewRoute: AppMaintenanceNewRoute,
   AppMetersRoute: AppMetersRoute,
   AppMyRoomRoute: AppMyRoomRoute,
   AppNotificationsRoute: AppNotificationsRoute,
+  AppRegistrationRoute: AppRegistrationRoute,
   AppReportsRoute: AppReportsRoute,
   AppRoomsRoute: AppRoomsRoute,
   AppViolationsRoute: AppViolationsRoute,

@@ -2,7 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { RoleGuard } from "@/components/RoleGuard";
-import { useStore } from "@/mock/store";
+import { useStore, useCurrentStudent, type Deposit } from "@/mock/store";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { QrCode } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -23,14 +31,20 @@ export const Route = createFileRoute("/_app/deposits")({ component: DepositsPage
 const PAGE_SIZE = 10;
 
 function DepositsPage() {
-  const { deposits, students, refundDeposit } = useStore();
+  const { role, deposits, students, refundDeposit, payDeposit } = useStore();
+  const currentStudent = useCurrentStudent();
+  const [payTarget, setPayTarget] = useState<Deposit | null>(null);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(
-    () =>
-      deposits.filter((d) => {
+    () => {
+      let baseList = deposits;
+      if (role === "student" && currentStudent) {
+        baseList = deposits.filter(d => d.studentId === currentStudent.id);
+      }
+      return baseList.filter((d) => {
         if (status !== "all" && d.status !== status) return false;
         if (q) {
           const s = students.find((x) => x.id === d.studentId);
@@ -38,8 +52,9 @@ function DepositsPage() {
           if (!hay.includes(q.toLowerCase())) return false;
         }
         return true;
-      }),
-    [deposits, students, q, status],
+      });
+    },
+    [deposits, students, q, status, role, currentStudent],
   );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -47,7 +62,7 @@ function DepositsPage() {
   const view = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
   return (
-    <RoleGuard allow={["accountant"]}>
+    <RoleGuard allow={["accountant", "student"]}>
       <PageHeader
         title="Quản lý tiền cọc"
         description="Tiền cọc đặt phòng và hoàn trả khi sinh viên trả phòng."
@@ -67,6 +82,7 @@ function DepositsPage() {
           { value: "all", label: "Tất cả" },
           { value: "Đã thu", label: "Đã thu" },
           { value: "Đã hoàn", label: "Đã hoàn" },
+          { value: "Chưa đóng", label: "Chưa đóng" },
         ]}
       />
       <div className="rounded-lg border bg-card">
@@ -91,12 +107,12 @@ function DepositsPage() {
                   <TableCell className="text-right">{formatVND(d.amount)}</TableCell>
                   <TableCell>{formatDate(d.date)}</TableCell>
                   <TableCell>
-                    <Badge variant={d.status === "Đã hoàn" ? "secondary" : "default"}>
+                    <Badge variant={d.status === "Đã hoàn" ? "secondary" : d.status === "Chưa đóng" ? "destructive" : "default"}>
                       {d.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {d.status === "Đã thu" && (
+                    {role === "accountant" && d.status === "Đã thu" && (
                       <Button
                         size="sm"
                         variant="outline"
@@ -106,6 +122,15 @@ function DepositsPage() {
                         }}
                       >
                         Hoàn cọc
+                      </Button>
+                    )}
+                    {role === "student" && d.status === "Chưa đóng" && (
+                      <Button
+                        size="sm"
+                        onClick={() => setPayTarget(d)}
+                        className="bg-[#C41230] text-white hover:bg-[#a00f27]"
+                      >
+                        <QrCode className="mr-2 h-4 w-4" /> Thanh toán
                       </Button>
                     )}
                   </TableCell>
@@ -123,6 +148,52 @@ function DepositsPage() {
         </Table>
         <Pagination page={current} totalPages={totalPages} onChange={setPage} />
       </div>
+
+      <Dialog open={!!payTarget} onOpenChange={(o) => !o && setPayTarget(null)}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Thanh toán tiền cọc</DialogTitle>
+          </DialogHeader>
+          {payTarget && (
+            <div className="space-y-3">
+              <div className="flex justify-center">
+                <div className="w-[200px] h-[200px] rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center text-gray-500 text-sm font-medium">
+                  QR Code
+                </div>
+              </div>
+              <div className="text-center text-xs text-muted-foreground">
+                Quét mã QR bằng app ngân hàng để nộp cọc
+              </div>
+              <div className="rounded-md bg-muted/40 p-3 text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Số tiền:</span>
+                  <span className="font-semibold text-[#C41230]">{formatVND(payTarget.amount)}</span>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span className="text-muted-foreground">Nội dung CK:</span>
+                  <span className="font-medium text-right truncate">
+                    COC - {students.find(s => s.id === payTarget.studentId)?.mssv}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPayTarget(null)}>
+              Đóng
+            </Button>
+            <Button onClick={() => {
+              if (payTarget) {
+                payDeposit(payTarget.id);
+                toast.success("Đã nộp cọc thành công!");
+              }
+              setPayTarget(null);
+            }} className="bg-green-600 text-white hover:bg-green-700">
+              Tôi đã thanh toán
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </RoleGuard>
   );
 }
