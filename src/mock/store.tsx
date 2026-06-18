@@ -255,7 +255,7 @@ const seedStudents: Student[] = [
     fullName: "Đặng Quang Huy",
     gender: "Nam",
     roomId: "room-B-1",
-    conductScore: 62,
+    conductScore: 45, // Cảnh báo
   },
   {
     id: "s8",
@@ -280,7 +280,7 @@ const seedStudents: Student[] = [
     fullName: "Đinh Công Thành",
     gender: "Nam",
     roomId: "room-B-2",
-    conductScore: 57,
+    conductScore: 25, // Nguy cơ hủy nội trú
   },
   // Tòa B – Phòng B103 (Nam)
   {
@@ -314,7 +314,7 @@ const seedStudents: Student[] = [
     fullName: "Phạm Thị Dung",
     gender: "Nữ",
     roomId: "room-A-3",
-    conductScore: 70,
+    conductScore: 55, // Theo dõi
   },
   // Tòa A – Phòng A104 (Nữ)
   {
@@ -349,8 +349,33 @@ const seedStudents: Student[] = [
     fullName: "Nguyễn Thị Mai",
     gender: "Nữ",
     roomId: "room-C-1",
-    conductScore: 88,
+    conductScore: 82,
   },
+  {
+    id: "s19",
+    mssv: "20230099",
+    fullName: "Lê Văn Sơn",
+    gender: "Nam",
+    roomId: "room-B-3",
+    conductScore: 35, // Cảnh báo
+  },
+  {
+    id: "s20",
+    mssv: "20220101",
+    fullName: "Trần Quang Hải",
+    gender: "Nam",
+    roomId: "room-A-2",
+    conductScore: 18, // Nguy cơ hủy nội trú
+  },
+  {
+    id: "s21",
+    mssv: "20220067",
+    fullName: "Hoàng Thị Phương",
+    gender: "Nữ",
+    roomId: "room-C-1",
+    conductScore: 60, // Theo dõi
+  },
+
   {
     id: "s19",
     mssv: "20210023",
