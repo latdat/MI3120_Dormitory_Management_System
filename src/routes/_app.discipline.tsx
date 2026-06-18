@@ -17,20 +17,27 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { RoleGuard } from "@/components/RoleGuard";
+import { useStore } from "@/mock/store";
 
 export const Route = createFileRoute("/_app/discipline")({
   component: DisciplinePage,
 });
 
-const MOCK_DATA = [
-  { id: "1", name: "Đinh Công Thành", mssv: "20210091", room: "B102", score: 57, level: "Cảnh báo" },
-  { id: "2", name: "Đặng Quang Huy", mssv: "20210034", room: "B101", score: 62, level: "Cảnh báo" },
-  { id: "3", name: "Phạm Thị Dung", mssv: "20210002", room: "A103", score: 70, level: "Theo dõi" },
-  { id: "4", name: "Hoàng Thị Phương", mssv: "20220067", room: "C102", score: 70, level: "Theo dõi" },
-];
-
 function DisciplinePage() {
+  const { students, rooms } = useStore();
   const [cancelTarget, setCancelTarget] = useState<{ id: string; name: string } | null>(null);
+
+  // Chỉ hiển thị sinh viên có điểm < 70 (có dấu hiệu cần theo dõi)
+  const atRiskStudents = students
+    .filter((s) => s.conductScore < 70 && s.roomId)
+    .sort((a, b) => a.conductScore - b.conductScore)
+    .map((s) => {
+      const room = rooms.find((r) => r.id === s.roomId);
+      const score = s.conductScore;
+      // Đúng ngưỡng: < 30 = Nguy cơ hủy, 30-49 = Cảnh báo, 50-69 = Theo dõi
+      const level = score < 30 ? "Nguy cơ hủy" : score < 50 ? "Cảnh báo" : "Theo dõi";
+      return { ...s, roomNumber: room?.number ?? "—", level };
+    });
 
   const handleSendWarning = (name: string) => {
     toast.success(`Đã gửi thông báo cảnh báo đến ${name}`);
@@ -71,14 +78,25 @@ function DisciplinePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {MOCK_DATA.map((student) => (
+              {atRiskStudents.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    Không có sinh viên nào cần theo dõi kỷ luật.
+                  </TableCell>
+                </TableRow>
+              )}
+              {atRiskStudents.map((student) => (
                 <TableRow key={student.id}>
-                  <TableCell className="font-medium text-slate-900">{student.name}</TableCell>
+                  <TableCell className="font-medium text-slate-900">{student.fullName}</TableCell>
                   <TableCell className="text-slate-600">{student.mssv}</TableCell>
-                  <TableCell className="text-slate-600">{student.room}</TableCell>
-                  <TableCell className="text-slate-600">{student.score} điểm</TableCell>
+                  <TableCell className="text-slate-600">{student.roomNumber}</TableCell>
+                  <TableCell className="text-slate-600">{student.conductScore} điểm</TableCell>
                   <TableCell>
-                    {student.level === "Cảnh báo" ? (
+                    {student.level === "Nguy cơ hủy" ? (
+                      <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">
+                        🚨 Nguy cơ hủy nội trú
+                      </Badge>
+                    ) : student.level === "Cảnh báo" ? (
                       <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200">
                         ⚠️ Cảnh báo
                       </Badge>
@@ -93,16 +111,16 @@ function DisciplinePage() {
                       variant="outline"
                       size="sm"
                       className="border-amber-400 text-amber-600 hover:bg-amber-50 hover:text-amber-700"
-                      onClick={() => handleSendWarning(student.name)}
+                      onClick={() => handleSendWarning(student.fullName)}
                     >
                       Gửi cảnh báo
                     </Button>
-                    {student.level === "Cảnh báo" && (
+                    {student.level !== "Theo dõi" && (
                       <Button
                         variant="outline"
                         size="sm"
                         className="border-red-400 text-red-600 hover:bg-red-50 hover:text-red-700"
-                        onClick={() => setCancelTarget({ id: student.id, name: student.name })}
+                        onClick={() => setCancelTarget({ id: student.id, name: student.fullName })}
                       >
                         Hủy nội trú
                       </Button>
