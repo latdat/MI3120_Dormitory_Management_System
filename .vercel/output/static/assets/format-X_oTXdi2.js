@@ -1,1 +1,0 @@
-var e=e=>new Intl.NumberFormat(`vi-VN`,{style:`currency`,currency:`VND`,maximumFractionDigits:0}).format(e),t=e=>{let t=typeof e==`string`?new Date(e):e;return`${String(t.getDate()).padStart(2,`0`)}/${String(t.getMonth()+1).padStart(2,`0`)}/${t.getFullYear()}`};export{e as n,t};
