@@ -1,7 +1,6 @@
 # Hệ Thống Quản Lý Ký Túc Xá Đại Học (KTX Manager)
 
 > Đồ án môn học: Phân tích và Thiết kế Hệ thống (MI3120)  
-> Trường Công nghệ Thông tin và Truyền thông – Đại học Bách Khoa Hà Nội
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
